@@ -9,7 +9,7 @@ return {
     "hrsh7th/cmp-nvim-lsp",     -- capabilities для nvim-cmp
   },
   config = function()
-    local servers = { "ts_ls", "eslint", "svelte", "intelephense", "html", "cssls", "lua_ls", "volar" }
+    local servers = { "ts_ls", "eslint", "svelte", "intelephense", "html", "cssls", "lua_ls", "vue_ls" }
 
     -- Mason
     require("mason").setup()
@@ -19,24 +19,6 @@ return {
     })
 
     local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-		-- Красивый hover в плавающем окне
-		vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-			vim.lsp.handlers.hover,
-			{
-				border = "rounded", -- рамка: "single", "double", "shadow", "rounded"
-				max_width = 80,
-			}
-		)
-
-		-- Аналогично для сигнатур (подсказка по аргументам функций)
-		vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-			vim.lsp.handlers.signature_help,
-			{
-				border = "rounded",
-				max_width = 80,
-			}
-		)
 
 		-- Хелпер для форматирования только eslint
 		local function eslint_format(bufnr, async)
@@ -98,13 +80,8 @@ return {
           },
         }
         opts.filetypes = { "javascript", "typescript" }
-			elseif server == "volar" then
+			elseif server == "vue_ls" then
 				opts.filetypes = { "vue" }
-				opts.init_options = {
-					typescript = {
-						tsdk = vim.fn.stdpath("data") .. "/mason/packages/typescript-language-server/node_modules/typescript/lib"
-					}
-				}
       elseif server == "eslint" then
         opts.settings = {
           format = { enable = true },
