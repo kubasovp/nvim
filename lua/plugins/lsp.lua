@@ -9,7 +9,7 @@ return {
     "hrsh7th/cmp-nvim-lsp",     -- capabilities для nvim-cmp
   },
   config = function()
-    local servers = { "ts_ls", "eslint", "svelte", "intelephense", "html", "cssls", "lua_ls" }
+    local servers = { "ts_ls", "eslint", "svelte", "intelephense", "html", "cssls", "lua_ls", "volar" }
 
     -- Mason
     require("mason").setup()
@@ -93,11 +93,18 @@ return {
             {
               name = "@vue/typescript-plugin",
               location = vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/typescript-plugin",
-              languages = { "javascript", "typescript", "vue" },
+              languages = { "javascript", "typescript" },
             },
           },
         }
-        opts.filetypes = { "javascript", "typescript", "vue" }
+        opts.filetypes = { "javascript", "typescript" }
+			elseif server == "volar" then
+				opts.filetypes = { "vue" }
+				opts.init_options = {
+					typescript = {
+						tsdk = vim.fn.stdpath("data") .. "/mason/packages/typescript-language-server/node_modules/typescript/lib"
+					}
+				}
       elseif server == "eslint" then
         opts.settings = {
           format = { enable = true },
