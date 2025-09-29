@@ -45,7 +45,7 @@ return {
         map("n", "<leader>hr", ":Gitsigns reset_hunk<CR>", { desc = "Reset hunk" })
 
         -- Blame
-        map("n", "<leader>gb", gs.current_line_blame, { desc = "Toggle inline blame" })
+        map("n", "<leader>gb", function() gs.blame_line() end, { desc = "Toggle inline blame" })
       end,
     })
   end,
