@@ -32,6 +32,7 @@ local modules = {
 	"plugins.icons",
 	"plugins.trouble",
 	"plugins.surround",
+	"plugins.persistence",
 }
 
 -- Собираем плоский список спецификаций для lazy.setup
