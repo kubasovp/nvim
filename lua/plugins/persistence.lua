@@ -43,6 +43,17 @@ return {
 	          -- pcall(function()
   	        --  require("nvim-tree.api").tree.open({ find_file = true })
     	      -- end)
+						-- Перемещаем фокус на активный буфер с файлом (чтобы не оставался на дереве)
+						local cur_buf = vim.api.nvim_get_current_buf()
+						vim.defer_fn(function()
+							-- ищем первый нормальный буфер, не нулевой
+							for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+								if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, "buflisted") then
+									vim.api.nvim_set_current_buf(buf)
+									break
+								end
+							end
+						end, 50) -- небольшая задержка для корректного фокуса
       		end)
 				end,
       })
