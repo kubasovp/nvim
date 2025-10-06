@@ -22,7 +22,7 @@ return {
         pattern = "PersistenceSavePre",
         callback = function()
           pcall(function()
-            require("nvim-tree.api").tree.close_in_all_tabs()
+          --  require("nvim-tree.api").tree.close_in_all_tabs()
           end)
         end,
       })
