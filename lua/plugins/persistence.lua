@@ -17,16 +17,6 @@ return {
       local persistence = require("persistence")
       persistence.setup(opts)
 
-      -- Хук: закрываем nvim-tree перед сохранением
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "PersistenceSavePre",
-        callback = function()
-          pcall(function()
-          --  require("nvim-tree.api").tree.close_in_all_tabs()
-          end)
-        end,
-      })
-
       -- Хук: открываем nvim-tree после загрузки
       vim.api.nvim_create_autocmd("User", {
         pattern = "PersistenceLoadPost",
@@ -40,9 +30,7 @@ return {
 						else
 							api.tree.find_file({ open = true, focus = false })
 						end
-	          -- pcall(function()
-  	        --  require("nvim-tree.api").tree.open({ find_file = true })
-    	      -- end)
+
 						-- Перемещаем фокус на активный буфер с файлом (чтобы не оставался на дереве)
 						local cur_buf = vim.api.nvim_get_current_buf()
 						vim.defer_fn(function()
@@ -53,7 +41,7 @@ return {
 									break
 								end
 							end
-						end, 50) -- небольшая задержка для корректного фокуса
+						end, 50)
       		end)
 				end,
       })
