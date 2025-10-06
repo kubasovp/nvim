@@ -1,33 +1,93 @@
 -- folke/persistence.nvim — менеджер сессий
 return {
-	{
-		"folke/persistence.nvim",
-		event = "BufReadPre",
-		config = function()
-			require("persistence").setup({
-				dir = vim.fn.stdpath("state") .. "/sessions/", -- куда сохранять
-				options = { "buffers", "curdir", "tabpages", "winsize" },
-			})
-			-- Автозагрузка последней сессии, если директория содержит сессию
-			-- автозагрузка последней сессии при старте
-      vim.api.nvim_create_autocmd("VimEnter", {
+  {
+    "folke/persistence.nvim",
+		lazy = false,
+    opts = {
+      dir = vim.fn.stdpath("state") .. "/sessions/",
+      options = { "buffers", "curdir", "tabpages", "winsize" },
+      pre_save = function()
+        vim.api.nvim_exec_autocmds("User", { pattern = "PersistenceSavePre" })
+      end,
+      post_load = function()
+        vim.api.nvim_exec_autocmds("User", { pattern = "PersistenceLoadPost" })
+      end,
+    },
+    config = function(_, opts)
+      local persistence = require("persistence")
+      persistence.setup(opts)
+
+      -- Хук: закрываем nvim-tree перед сохранением
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "PersistenceSavePre",
         callback = function()
-          local ok, _ = pcall(require("persistence").load, { last = true })
+          pcall(function()
+            require("nvim-tree.api").tree.close_in_all_tabs()
+          end)
         end,
       })
 
-			vim.keymap.set("n", "<leader>qs", function()
-				require("persistence").load()
-			end, { desc = "Restore session for current directory" })
+      -- Хук: открываем nvim-tree после загрузки
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "PersistenceLoadPost",
+        callback = function()
+					vim.schedule(function()
+						local ok, api = pcall(require, "nvim-tree.api")
+						if not ok then return end 
 
-			vim.keymap.set("n", "<leader>ql", function()
-				require("persistence").load({ last = true })
-			end, { desc = "Restore last session" })
+						if not api.tree.is_visible() then
+							api.tree.open({ find_file = true, focus = false })
+						else
+							api.tree.find_file({ open = true, focus = false })
+						end
+	          -- pcall(function()
+  	        --  require("nvim-tree.api").tree.open({ find_file = true })
+    	      -- end)
+      		end)
+				end,
+      })
 
-			vim.keymap.set("n", "<leader>qd", function()
-				require("persistence").stop()
-			end, { desc = "Stop persistence (don’t save session)" })
-		end,
-	}
+      -- Автозагрузка сессии при старте, но только если открыт каталог
+			vim.api.nvim_create_autocmd("VimEnter", {
+				callback = function()
+					local argc = vim.fn.argc()
+					if argc == 0 then return end
+
+					local argv0 = vim.fn.argv(0)
+					local target_dir
+					if vim.fn.isdirectory(argv0) == 1 then
+						target_dir = vim.fn.fnamemodify(argv0, ":p")
+					else
+						-- если открыт файл, ищем git root
+						local git_root = vim.fn.systemlist("git -C " .. vim.fn.fnamemodify(argv0, ":p:h") .. " rev-parse --show-toplevel")[1]
+						if git_root and #git_root > 0 then
+							target_dir = git_root
+						else
+							target_dir = vim.fn.fnamemodify(argv0, ":p:h")
+						end
+					end
+
+					-- меняем cwd на проект
+					vim.cmd("cd " .. vim.fn.fnameescape(target_dir))
+
+					-- автозагрузка сессии для cwd
+					vim.schedule(function()
+						local ok = persistence.load({ dir = opts.dir, autosave = true })
+						vim.notify("[persistence] session loaded: " .. tostring(ok), vim.log.levels.INFO)
+					end)
+				end
+			})
+
+      -- Кеймапы для ручного управления
+      vim.keymap.set("n", "<leader>qs", function() persistence.load() end,
+        { desc = "Восстановить сессию для текущей директории" })
+      vim.keymap.set("n", "<leader>ql", function() persistence.load({ last = true }) end,
+        { desc = "Восстановить последнюю сессию" })
+      vim.keymap.set("n", "<leader>qd", function() persistence.stop() end,
+        { desc = "Остановить сохранение сессии" })
+      vim.keymap.set("n", "<leader>qS", function() persistence.select() end,
+        { desc = "Выбрать сессию вручную" })
+    end,
+  }
 }
 
