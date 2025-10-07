@@ -1,4 +1,9 @@
--- windwp/nvim-ts-autotag — закрытие/переименование html/vue/svelte тегов
+--- =======================================================================
+-- ~/.config/nvim/lua/plugins/autotag.lua
+--  Плагин: windwp/nvim-ts-autotag — автозакрытие HTML/JSX тегов
+--  Работает совместно с Treesitter, автоматически завершает и переименовывает теги
+-- =======================================================================- 
+
 return {
   "windwp/nvim-ts-autotag",
   event = { "InsertEnter", "BufReadPost" },
