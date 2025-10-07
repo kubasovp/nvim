@@ -6,6 +6,7 @@ return {
     opts = {
       dir = vim.fn.stdpath("state") .. "/sessions/",
       options = { "buffers", "curdir", "tabpages", "winsize" },
+			branch = false,
       pre_save = function()
         vim.api.nvim_exec_autocmds("User", { pattern = "PersistenceSavePre" })
       end,
