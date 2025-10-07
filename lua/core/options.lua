@@ -1,26 +1,35 @@
+-- =======================================================================
 -- ~/.config/nvim/lua/core/options.lua
--- Базовые параметры редактора
+--  Core: Базовые настройки редактора
+--  Общие параметры отображения, поведения и интерфейса
+-- =======================================================================
+
 local o = vim.opt
--- Номера строк
+
+-- Нумерация строк
 o.number = true
 o.relativenumber = true
 
--- Tab / indent (табы по умолчанию)
+-- Отступы и табы (по умолчанию)
 o.tabstop = 2
 o.shiftwidth = 2
 o.expandtab = false
 o.smartindent = true
 
--- Цвета и лидер
+-- Цвета и оформление
 o.termguicolors = true
-vim.g.mapleader = " "  -- лидер — пробел
 
--- Другие опции (можно отключать/добавлять)
-o.clipboard = "unnamedplus"   -- системный буфер обмена
-o.cursorline = true
-o.splitright = true
-o.splitbelow = true
+-- Лидер-клавиша
+vim.g.mapleader = " " -- пробел
 
+-- Поведение окон и буфера обмена
+o.clipboard = "unnamedplus"   -- использовать системный буфер
+o.cursorline = true           -- подсветка текущей строки
+o.splitright = true           -- новые вертикальные окна справа
+o.splitbelow = true           -- новые горизонтальные окна снизу
+
+-- Сворачивание (folds) через Treesitter
 vim.o.foldmethod = "expr"
 vim.o.foldexpr = "nvim_treesitter#foldexpr()"
 vim.o.foldenable = false
+
